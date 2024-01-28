@@ -5,6 +5,8 @@ const { default: mongoose } = require('mongoose')
 const sendmail = require('../helpers/sendmail')
 const sendEmail = require('../middlewares/mail')
 
+
+
 const registration = async (req, res)=>{
    try {
     const {fullName,email,password,zipCode} = req.body
@@ -12,6 +14,10 @@ const checkEmail = await userModel.findOne({email})
 if(checkEmail){
     return res.status(400).json({messsage:'user withs email already registered'})
 }
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if(!email || !emailPattern?.test(email)){
+    return res.status(404).json({message:"email pattern not valid"})
+  }
 
 const salt = await bcrypt.genSaltSync(10)
 const hashedPassword = await bcrypt.hashSync(password,salt)
@@ -40,6 +46,23 @@ res.status(200).json({message:'user registered successfully', data:user,token})
     res.status(500).json(error.message)
    }
 }
+
+const login = async(req,res)=>{
+    try {
+        const {email, password} = req.body
+
+        const checkEmail= await userModel.findOne({email})
+
+        if(!checkEmail){
+            return res.status(404).json({message:'user wiyth this email is not found'})
+        }
+        
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+}
+
+
 
 module.exports={
     registration
