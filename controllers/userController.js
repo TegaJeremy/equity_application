@@ -53,7 +53,7 @@ const login = async(req,res)=>{
         const user= await userModel.findOne({email})
 
         if(!user){
-            return res.status(404).json({message:'user wiyth this email is not found'})
+            return res.status(404).json({message:'user with this email is not registered'})
         }
 
         const verifiedPassword = bcrypt.compareSync(password, user.password)
@@ -62,8 +62,9 @@ const login = async(req,res)=>{
             return res.status(400).json({message:'password incorrect'})
         }
         const token = jwt.sign({email:user.email, id:user._id}, process.env.SECRET_KEY, {expiresIn:'1d'})
+        
 
-       res.status(200).json({message:'login successful'})
+       res.status(200).json({message:'login successful', data:token})
         
     } catch (error) {
         res.status(500).json(error.message)
@@ -71,9 +72,37 @@ const login = async(req,res)=>{
 }
 
 
+const logout = async (req,res)=>{
+    try {
+        const {userId} = req.params
+
+        const user = await userModel.exists({_id:userId})
+        if(!user){
+            return res.status(401).json({message:'user does not exist'})
+        }
+
+        const updatedUser = await userModel.findByIdAndUpdate(userId, {token:null}, {new:true})
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                message: 'User not found',
+            });
+        }
+  
+        res.status(200).json({
+            message: 'User logged out successfully',
+        });
+        
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+}
+
 
 module.exports={
-    registration
+    registration,
+    login,
+    logout
 }
 
 
