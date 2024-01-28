@@ -1,7 +1,6 @@
 const userModel = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const { default: mongoose } = require('mongoose')
 const sendmail = require('../helpers/sendmail')
 const sendEmail = require('../middlewares/mail')
 
@@ -51,11 +50,20 @@ const login = async(req,res)=>{
     try {
         const {email, password} = req.body
 
-        const checkEmail= await userModel.findOne({email})
+        const user= await userModel.findOne({email})
 
-        if(!checkEmail){
+        if(!user){
             return res.status(404).json({message:'user wiyth this email is not found'})
         }
+
+        const verifiedPassword = bcrypt.compareSync(password, user.password)
+
+        if(!verifiedPassword){
+            return res.status(400).json({message:'password incorrect'})
+        }
+        const token = jwt.sign({email:user.email, id:user._id}, process.env.SECRET_KEY, {expiresIn:'1d'})
+
+       res.status(200).json({message:'login successful'})
         
     } catch (error) {
         res.status(500).json(error.message)
