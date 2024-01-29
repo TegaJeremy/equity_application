@@ -1,7 +1,7 @@
 const userModel = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const sendmail = require('../helpers/sendmail')
+const {sendMail,forgotPasswordMail} = require('../helpers/sendmail')
 const sendEmail = require('../middlewares/mail')
 
 
@@ -31,7 +31,7 @@ const token = jwt.sign( { email:user.email }, process.env.SECRET_KEY, { expiresI
 await user.save()
 const subject = "New User Registration";
 //const message = `Welcome onboard! Kindly use this OTP to verify your account: ${OTP}`;
-html = sendmail();
+html = sendMail(fullName);
 const data = {
     email: user.email,
     subject,
@@ -98,11 +98,86 @@ const logout = async (req,res)=>{
     }
 }
 
+const forgetPassword = async(req,res)=>{
+    try {
+        const {email} = req.body
+        const user = await userModel.findOne({email})
+
+        if(!user){
+            return res.status(401).json({message:'user with this email is not found'})
+        }
+        const token =  jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: "20m" });
+        const link =`https://medvault-xixt.onrender.com/#/newPassword/${token}`
+        const subject = "Reset password";
+//const message = `Welcome onboard! Kindly use this OTP to verify your account: ${OTP}`;
+html = forgotPasswordMail(link, user.fullName);
+const dataa = {
+    email: user.email,
+    subject,
+    html,
+};
+
+await sendEmail(dataa);
+
+        res.status(200).json({
+            message: "Password reset email sent successfully"
+          });
+    } catch (error) {
+       res.status(500).json(error.message) 
+    }
+}
+
+
+
+const changepassword = async (req, res) => {
+    try {
+      const { token } = req.params;
+      const { newPassword, confirmNewPassword, existingPassword } = req.body;
+  
+      const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+      const userId = decodedToken.id;
+  
+      const user = await userModel.findOne({ _id: userId });
+  
+      if (!user) {
+        return res.status(401).json({ message: 'User not found' });
+      }
+  
+      if (newPassword !== confirmNewPassword) {
+        return res.status(401).json({ message: 'New password and confirm new password do not match' });
+      }
+  
+      const matchedPassword = await bcrypt.compare(existingPassword, user.password);
+  
+      if (!matchedPassword) {
+        return res.status(401).json({ message: 'Existing password is incorrect' });
+      }
+  
+      const saltedPassword = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(newPassword, saltedPassword);
+  
+      user.password = hashedPassword;
+  
+      await user.save();
+  
+      res.status(200).json({
+        message: 'Password changed successfully',
+      });
+    } catch (error) {
+      console.error('Something went wrong', error.message);
+      res.status(500).json({
+        message: error.message,
+      });
+    }
+  };
+  
 
 module.exports={
     registration,
     login,
-    logout
+    logout,
+    forgetPassword,
+    changepassword
 }
 
 
