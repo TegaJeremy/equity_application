@@ -8,7 +8,7 @@ const sendEmail = require('../middlewares/mail')
 
 const registration = async (req, res)=>{
    try {
-    const {fullName,email,password,zipCode} = req.body
+    const {fullName,motherMaidenName,email,address, mobileNumber,password,zipCode,SocialSecurityNumber,accountNumber} = req.body
 const checkEmail = await userModel.findOne({email})
 if(checkEmail){
     return res.status(400).json({messsage:'user withs email already registered'})
@@ -18,20 +18,38 @@ if(!email || !emailPattern?.test(email)){
     return res.status(404).json({message:"email pattern not valid"})
   }
 
+  function generate10DigitNumber() {
+    let random10DigitNumber = '';
+    for (let i = 0; i < 10; i++) {
+      const digit = i === 0 ? Math.floor(Math.random() * 9) + 1 : Math.floor(Math.random() * 10);
+      random10DigitNumber += digit.toString();
+    }
+  
+    return random10DigitNumber;
+  }
+  
+  const digit = generate10DigitNumber();
+
 const salt = await bcrypt.genSaltSync(10)
 const hashedPassword = await bcrypt.hashSync(password,salt)
 
 const user = new userModel({
     fullName,
+    motherMaidenName,
     email,
+    address,
+    mobileNumber,
     password:hashedPassword,
-    zipCode
+    zipCode,
+    SocialSecurityNumber,
+    accountNumber:digit
+    
 })
 const token = jwt.sign( { email:user.email }, process.env.SECRET_KEY, { expiresIn: "15m" } );
 await user.save()
 const subject = "New User Registration";
 //const message = `Welcome onboard! Kindly use this OTP to verify your account: ${OTP}`;
-html = sendMail(fullName);
+html = sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumber);
 const data = {
     email: user.email,
     subject,

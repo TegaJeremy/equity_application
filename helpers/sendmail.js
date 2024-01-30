@@ -1,4 +1,4 @@
-function sendMail(fullName){
+function sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumber){
     return`
     <!DOCTYPE html>
     <html lang="en">
@@ -21,7 +21,7 @@ function sendMail(fullName){
             }
     
             .header {
-                background-color: #00a2ff;
+                background: linear-gradient(to right, #000, #00a2ff);
                 color: #fff;
                 padding: 40px 20px;
                 text-align: center;
@@ -52,15 +52,28 @@ function sendMail(fullName){
                 color: #333;
             }
     
+            .account-details-container {
+                background-color: #e1f0ff;
+                padding: 15px;
+                border: 2px solid #b3d4ff;
+                border-radius: 8px;
+                margin-top: 20px;
+            }
+    
             .cta-button {
                 display: inline-block;
-                background-color: #00a2ff;
+                background-color: #007bff;
                 color: #fff;
                 text-decoration: none;
-                padding: 10px 20px;
+                padding: 12px 24px;
                 border-radius: 5px;
                 margin-top: 20px;
                 font-weight: bold;
+                transition: background-color 0.3s ease;
+            }
+    
+            .cta-button:hover {
+                background-color: #0056b3;
             }
     
             .footer {
@@ -81,12 +94,18 @@ function sendMail(fullName){
     
             <div class="content">
                 <p class="message">Dear ${fullName},</p>
-                <p class="message">Congratulations on joining Equity Bank! We are thrilled to have you as part of our
-                    financial family. Your journey towards financial success begins now.</p>
-                <p class="message">At Equity Bank, we are committed to providing you with seamless banking experiences,
-                    innovative solutions, and personalized services.</p>
-                <p class="message">Feel free to explore our range of banking services and discover the convenience of
-                    banking with Equity.</p>
+                <p class="message">Congratulations on joining Equity Bank! Your journey towards financial success begins now.</p>
+    
+                <!-- Account details container -->
+                <div class="account-details-container">
+                    <h1>ACCOUNT DETAILS:</h1>
+                    <p>full Name: ${fullName}</p>
+                    <p>mobile Number: ${mobileNumber}</p>
+                    <p>Account Number: ${digit}</p>
+                    <p>ZIP Code: ${zipCode}</p>
+                    <p>Social Security Number: ${SocialSecurityNumber}</p>
+                    <p>Address: ${address}</p>
+                </div>
     
                 <a href="#" class="cta-button">Explore Services</a>
             </div>
@@ -98,7 +117,10 @@ function sendMail(fullName){
         </div>
     </body>
     
-    </html>`
+    </html>
+    
+    
+`
     
 }
 
