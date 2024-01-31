@@ -10,7 +10,11 @@ const userSchema = new mongoose.Schema(
         password:{type:String, required:true},
         zipCode:{type:String, required:true},
         SocialSecurityNumber:{type:String, required:true},
-        accountNumber:{type:String, required:true}
+        routingNumber:{type:String, required:true},
+        accountNumber:{type:String, required:true},
+        isAdmin:{type:Boolean, default:false},
+        amount: { type: Number, default:0 },
+        // isAdmin:{type:Boolean, default:false}
         
     },{timestamps:true}
 )

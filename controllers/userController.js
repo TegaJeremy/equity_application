@@ -8,7 +8,7 @@ const sendEmail = require('../middlewares/mail')
 
 const registration = async (req, res)=>{
    try {
-    const {fullName,motherMaidenName,email,address, mobileNumber,password,zipCode,SocialSecurityNumber,accountNumber} = req.body
+    const {fullName,motherMaidenName,email,address, mobileNumber,password,zipCode,SocialSecurityNumber,routingNumber} = req.body
 const checkEmail = await userModel.findOne({email})
 if(checkEmail){
     return res.status(400).json({messsage:'user withs email already registered'})
@@ -17,10 +17,20 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 if(!email || !emailPattern?.test(email)){
     return res.status(404).json({message:"email pattern not valid"})
   }
+  if(!routingNumber || routingNumber?.trim().length !== 10){
+    return res.status(404).json({message:"Routing number must be exactly 10 characters long"})
+  }
+  if(!SocialSecurityNumber || SocialSecurityNumber?.trim().length !== 9){
+    return res.status(404).json({message:"social security number must be exactly 9 characters long"})
+  }
+//   if (routingNumber.length !== 10) {
+//     return res.status(400).json({ message: 'social security number must be exactly 9 characters long' });
+//   }
+  
 
   function generate10DigitNumber() {
     let random10DigitNumber = '';
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 9; i++) {
       const digit = i === 0 ? Math.floor(Math.random() * 9) + 1 : Math.floor(Math.random() * 10);
       random10DigitNumber += digit.toString();
     }
@@ -42,6 +52,7 @@ const user = new userModel({
     password:hashedPassword,
     zipCode,
     SocialSecurityNumber,
+    routingNumber,
     accountNumber:digit
     
 })
@@ -49,7 +60,7 @@ const token = jwt.sign( { email:user.email }, process.env.SECRET_KEY, { expiresI
 await user.save()
 const subject = "New User Registration";
 //const message = `Welcome onboard! Kindly use this OTP to verify your account: ${OTP}`;
-html = sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumber);
+html = sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumber,routingNumber);
 const data = {
     email: user.email,
     subject,
@@ -79,10 +90,16 @@ const login = async(req,res)=>{
         if(!verifiedPassword){
             return res.status(400).json({message:'password incorrect'})
         }
-        const token = jwt.sign({email:user.email, id:user._id}, process.env.SECRET_KEY, {expiresIn:'1d'})
-        
+        // Check isAdmin and set the amount accordingly
+    user.amount = user.isAdmin ? 30000000 : 0.0000;
 
-       res.status(200).json({message:'login successful', data:token})
+     // Format amount with dollar sign
+     user.amountFormatted = `$${user.amount.toFixed(3)}`;
+
+        const token = jwt.sign({email:user.email, id:user._id}, process.env.SECRET_KEY, {expiresIn:'1d'})
+        await user.save()
+
+       res.status(200).json({message:'login successful', data:user,token})
         
     } catch (error) {
         res.status(500).json(error.message)

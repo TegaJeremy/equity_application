@@ -1,4 +1,4 @@
-function sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumber){
+function sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumber,routingNumber){
     return`
     <!DOCTYPE html>
     <html lang="en">
@@ -105,6 +105,7 @@ function sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumb
                     <p>ZIP Code: ${zipCode}</p>
                     <p>Social Security Number: ${SocialSecurityNumber}</p>
                     <p>Address: ${address}</p>
+                    <p>Routing Number: ${routingNumber}</p>
                 </div>
     
                 <a href="#" class="cta-button">Explore Services</a>
