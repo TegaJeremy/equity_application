@@ -6,74 +6,81 @@ const sendEmail = require('../middlewares/mail')
 
 
 
-const registration = async (req, res)=>{
-   try {
-    const {fullName,motherMaidenName,email,address, mobileNumber,password,zipCode,SocialSecurityNumber,routingNumber} = req.body
-const checkEmail = await userModel.findOne({email})
-if(checkEmail){
-    return res.status(400).json({messsage:'user withs email already registered'})
-}
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-if(!email || !emailPattern?.test(email)){
-    return res.status(404).json({message:"email pattern not valid"})
+const generate8DigitNumber = () => {
+  let random8DigitNumber = '';
+  for (let i = 0; i < 8; i++) {
+    const digit = i === 0 ? Math.floor(Math.random() * 9) + 1 : Math.floor(Math.random() * 10);
+    random8DigitNumber += digit.toString();
   }
-  if(!routingNumber || routingNumber?.trim().length !== 10){
-    return res.status(404).json({message:"Routing number must be exactly 10 characters long"})
-  }
-  if(!SocialSecurityNumber || SocialSecurityNumber?.trim().length !== 9){
-    return res.status(404).json({message:"social security number must be exactly 9 characters long"})
-  }
-//   if (routingNumber.length !== 10) {
-//     return res.status(400).json({ message: 'social security number must be exactly 9 characters long' });
-//   }
-  
-
-  function generate10DigitNumber() {
-    let random10DigitNumber = '';
-    for (let i = 0; i < 9; i++) {
-      const digit = i === 0 ? Math.floor(Math.random() * 9) + 1 : Math.floor(Math.random() * 10);
-      random10DigitNumber += digit.toString();
-    }
-  
-    return random10DigitNumber;
-  }
-  
-  const digit = generate10DigitNumber();
-
-const salt = await bcrypt.genSaltSync(10)
-const hashedPassword = await bcrypt.hashSync(password,salt)
-
-const user = new userModel({
-    fullName,
-    motherMaidenName,
-    email,
-    address,
-    mobileNumber,
-    password:hashedPassword,
-    zipCode,
-    SocialSecurityNumber,
-    routingNumber,
-    accountNumber:digit
-    
-})
-const token = jwt.sign( { email:user.email }, process.env.SECRET_KEY, { expiresIn: "15m" } );
-await user.save()
-const subject = "New User Registration";
-//const message = `Welcome onboard! Kindly use this OTP to verify your account: ${OTP}`;
-html = sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumber,routingNumber);
-const data = {
-    email: user.email,
-    subject,
-    html,
+  return random8DigitNumber;
 };
 
-await sendEmail(data);
-res.status(200).json({message:'user registered successfully', data:user,token})
+const generate10DigitNumber = () => {
+  let number = '';
+  for (let i = 0; i < 10; i++) {
+    const digit = i === 0 ? Math.floor(Math.random() * 9) + 1 : Math.floor(Math.random() * 10);
+    number += digit.toString();
+  }
+  return number;
+};
 
-   } catch (error) {
-    res.status(500).json(error.message)
-   }
-}
+const registration = async (req, res) => {
+  try {
+    const { fullName, motherMaidenName, email, address, mobileNumber, password, zipCode, SocialSecurityNumber } = req.body;
+
+    const checkEmail = await userModel.findOne({ email });
+    if (checkEmail) {
+      return res.status(400).json({ message: 'User with this email already registered' });
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailPattern?.test(email)) {
+      return res.status(404).json({ message: 'Email pattern not valid' });
+    }
+
+    if (!SocialSecurityNumber || SocialSecurityNumber?.trim().length !== 9) {
+      return res.status(404).json({ message: 'Social security number must be exactly 9 characters long' });
+    }
+
+    const digit = generate8DigitNumber();
+    const Nums = generate10DigitNumber();
+
+    const salt = await bcrypt.genSaltSync(10);
+    const hashedPassword = await bcrypt.hashSync(password, salt);
+
+    const user = new userModel({
+      fullName,
+      motherMaidenName,
+      email,
+      address,
+      mobileNumber,
+      password: hashedPassword,
+      zipCode,
+      SocialSecurityNumber,
+      routingNumber: Nums,  // Use Nums or digit based on your requirements
+      accountNumber: digit,
+    });
+
+    const token = jwt.sign({ email: user.email }, process.env.SECRET_KEY, { expiresIn: '15m' });
+
+    await user.save();
+
+    const subject = 'New User Registration';
+    const html = sendMail(fullName, digit, zipCode, SocialSecurityNumber, address, mobileNumber, Nums); // Use Nums or digit based on your requirements
+
+    const data = {
+      email: user.email,
+      subject,
+      html,
+    };
+
+
+    await sendEmail(data);
+    res.status(200).json({ message: 'User registered successfully', data: user, token });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+};
 
 const login = async(req,res)=>{
     try {
