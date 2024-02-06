@@ -48,10 +48,11 @@ const registration = async (req, res) => {
     const salt = await bcrypt.genSaltSync(10);
     const hashedPassword = await bcrypt.hashSync(password, salt);
 
+        const lowerCase = email.toLowerCase()
     const user = new userModel({
       fullName,
       motherMaidenName,
-      email,
+      email:lowerCase,
       address,
       mobileNumber,
       password: hashedPassword,
@@ -84,7 +85,8 @@ const registration = async (req, res) => {
 
 const login = async(req,res)=>{
     try {
-        const {email, password} = req.body
+        let {email, password} = req.body
+        email = email.toLowerCase();
 
         const user= await userModel.findOne({email})
 
