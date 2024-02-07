@@ -15,9 +15,12 @@ const userSchema = new mongoose.Schema(
         isAdmin:{type:Boolean, default:false},
         amount: { type: Number, default:0 },
         // isAdmin:{type:Boolean, default:false}
+
         
     },{timestamps:true}
 )
 
+
 const userModel = mongoose.model('client', userSchema)
 module.exports = userModel
+
