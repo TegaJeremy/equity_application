@@ -4,7 +4,7 @@ const{registration, login, logout,forgetPassword,changepassword,getOne} = requir
 
 router.route("/Registration").post(registration)
 router.route("/login").post(login)
-router.route("/login").post(logout)
+router.route("/logout").post(logout)
 router.route("/forgotPassword").post(forgetPassword)
 router.route("/changePassword/:token").post(changepassword)
 router.route("/getOne/:userId").get(getOne)
