@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
         routingNumber:{type:String, required:true},
         accountNumber:{type:String, required:true},
         isAdmin:{type:Boolean, default:false},
-        amount: { type: Number, default:0 },
+        amount: { type: String},
         // isAdmin:{type:Boolean, default:false}
 
         
