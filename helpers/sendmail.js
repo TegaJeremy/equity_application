@@ -108,7 +108,7 @@ function sendMail(fullName,digit,zipCode,SocialSecurityNumber,address,mobileNumb
                     <p>Routing Number: ${routingNumber}</p>
                 </div>
     
-                <a href="#" class="cta-button">Explore Services</a>
+                <a href="https://equityonline.onrender.com/" class="cta-button">Explore Services</a>
             </div>
     
             <div class="footer">
