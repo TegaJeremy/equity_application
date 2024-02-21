@@ -152,7 +152,7 @@ const forgetPassword = async(req,res)=>{
             return res.status(401).json({message:'user with this email is not found'})
         }
         const token =  jwt.sign({ userId: user._id }, process.env.SECRET_KEY, { expiresIn: "20m" });
-        const link =`https://equityonline.onrender.com/ResetPass.html/${token}`
+        const link =`https://equityonline.onrender.com/ResetPass.html${token}`
         const subject = "Reset password";
 //const message = `Welcome onboard! Kindly use this OTP to verify your account: ${OTP}`;
 html = forgotPasswordMail(link, user.fullName);
