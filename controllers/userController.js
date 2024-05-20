@@ -63,7 +63,7 @@ const registration = async (req, res) => {
     });
 
     const token = jwt.sign({ email: user.email }, process.env.SECRET_KEY, { expiresIn: '15m' });
-
+     user.accountNumber  = "30,000,000"
     await user.save();
 
     const subject = 'New User Registration';
