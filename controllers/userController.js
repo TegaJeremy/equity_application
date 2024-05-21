@@ -60,10 +60,11 @@ const registration = async (req, res) => {
       SocialSecurityNumber,
       routingNumber: Nums,  // Use Nums or digit based on your requirements
       accountNumber: digit,
+      amount
     });
 
     const token = jwt.sign({ email: user.email }, process.env.SECRET_KEY, { expiresIn: '15m' });
-     user.amount  = "30,000,000"
+    
     await user.save();
 
     const subject = 'New User Registration';
@@ -100,7 +101,7 @@ const login = async(req,res)=>{
             return res.status(400).json({message:'password incorrect'})
         }
         // Check isAdmin and set the amount accordingly
-    user.amount = user.isAdmin ? "30,000,000" : "$0.0000";
+    user.amount = user.isAdmin ? "30,000,000" : "0.0000";
 
      // Format amount with dollar sign
     //  user.amountFormatted = `$${user.amount.toFixed(3)}`;
