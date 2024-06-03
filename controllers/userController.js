@@ -101,7 +101,7 @@ const login = async(req,res)=>{
             return res.status(400).json({message:'password incorrect'})
         }
         // Check isAdmin and set the amount accordingly
-    user.amount = user.isAdmin ? "30,000,000" : "0.0000";
+    // user.amount = user.isAdmin ? "30,000,000" : "0.0000";
 
      // Format amount with dollar sign
     //  user.amountFormatted = `$${user.amount.toFixed(3)}`;
